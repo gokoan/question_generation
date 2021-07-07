@@ -2,6 +2,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import Optional
 import json
+import os
+import sys
 import torch
 from tqdm.auto import tqdm
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, HfArgumentParser
@@ -57,9 +59,17 @@ def get_predictions(model, tokenizer, data_loader, num_beams=4, max_length=32, l
 
     return predictions
 
-def main():
+def main(args_file=None):
     parser = HfArgumentParser((EvalArguments,))
-    args = parser.parse_args_into_dataclasses()[0]
+
+    if (len(sys.argv) == 2 and sys.argv[1].endswith(".json")) or args_file is not None:
+        # If we pass only one argument to the script and it's the path to a json file,
+        # let's parse it to get our arguments.
+        args_file_path = os.path.abspath(sys.argv[1]) if args_file is None else args_file
+        args = parser.parse_json_file(json_file=args_file_path)[0]
+    else:
+        args = parser.parse_args_into_dataclasses()[0]
+
 
     tokenizer = AutoTokenizer.from_pretrained(
         args.tokenizer_name_or_path if args.tokenizer_name_or_path else args.model_name_or_path,
