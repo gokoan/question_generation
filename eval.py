@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass, field
 from typing import Optional
-
+import json
 import torch
 from tqdm.auto import tqdm
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, HfArgumentParser
@@ -87,6 +87,12 @@ def main():
     
     logging.info(f"Output saved at {args.output_path}")
 
+
+def eval(args_dict):
+    with open("args.json", 'w') as f:
+        json.dump(args_dict, f)
+
+    main(args_file="args.json")
 
 if __name__ == "__main__":
     main()
